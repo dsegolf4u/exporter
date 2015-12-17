@@ -2,7 +2,13 @@
 
 namespace Exporter\Writer;
 
-
+/**
+ * Class DataTableWriter
+ *
+ * This class is based on datatables 1.9 docs -> http://legacy.datatables.net/usage/
+ *
+ * @package Exporter\Writer
+ */
 class DataTableWriter implements WriterInterface
 {
     protected $pagingType;
@@ -11,6 +17,9 @@ class DataTableWriter implements WriterInterface
     protected $no_records_found_text;
 
     public $displayLength = 50;
+
+    protected $showSearchField = false;
+    protected $filter = false;
 
     /**
      * @return void
@@ -53,17 +62,16 @@ class DataTableWriter implements WriterInterface
 
     public function output($data = null, $columns = null)
     {
-
         $html = '      var ' . $this->jsTableVarName . ' = $("#' . $this->tableElementId . '").dataTable({' . "\n";
         $html .= '          "bStateSave": true' . ", \n";
         $html .= '          "aaData": ' . json_encode($data) . ", \n";
         $html .= '          "aoColumns": ' . json_encode($columns) . ", \n";
         $html .= '          "iDisplayLength"    : ' . $this->displayLength . ", \n";
-        $html .= '          "bFilter": false' . ", \n";
+        $html .= '          "bFilter": ' . $this->getFilterValue() . ", \n";
         $html .= '          "bInfo": true' . ", \n";
 //        $html .= '          "bLengthChange": false' . ", \n";
-        $html .= '          "aLengthMenu": [[50, 100, 200, -1], [50, 100, 200, "All"]]' . ", \n";
-        $html .= '          "sDom": \'<"top"l><"pager"p>t<"clear">\'' . ", \n";
+        $html .= '          "aLengthMenu": [[25, 50, 100, 200, -1], [25, 50, 100, 200, "All"]]' . ", \n";
+        $html .= '          "sDom": ' . $this->generateDomValue() . ", \n";
         if ($this->pagingType) {
             $html .= '          "sPaginationType": "' . $this->pagingType . '"' . ", \n";
         }
@@ -71,6 +79,8 @@ class DataTableWriter implements WriterInterface
         $html .= '              "sInfo" : "_START_ tot _END_ van de _TOTAL_ ' . $this->paging_description . '"' . ",\n";
         $html .= '              "sLengthMenu" : "Toon _MENU_ regels"' . ",\n";
         $html .= '              "sInfoEmpty" : "Geen records gevonden"' . ",\n";
+        $html .= '              "sInfoFiltered" : " - gefilterd van _MAX_ resultaten"' . ",\n";
+        $html .= '              "sSearch" : "Zoek"' . ",\n";
         $html .= '              "sZeroRecords" : "' . $this->no_records_found_text . '"' . ",\n";
         $html .= '              "oPaginate": {' . "\n";
         $html .= '                  "sPrevious": "Vorige"' . ",\n";
@@ -129,6 +139,34 @@ class DataTableWriter implements WriterInterface
         }
 
         return $this->output($data, $cols);
+    }
+
+    /**
+     * @author Didier <didier@e-golf4u.nl>
+     *
+     * @param boolean $value
+     */
+    public function showSearchField($value)
+    {
+        $this->showSearchField = $value;
+        $this->filter = $value;
+    }
+
+
+    private function generateDomValue()
+    {
+        $sDom = '\'<"top"l';
+
+        if ($this->showSearchField) $sDom .= 'f';
+
+        $sDom .= '><"pager"ip>t<"clear"> \'';
+
+        return $sDom;
+    }
+
+    private function getFilterValue()
+    {
+        return $this->filter ? 'true' : 'false';
     }
 
 }
