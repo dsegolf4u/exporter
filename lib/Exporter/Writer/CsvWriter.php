@@ -82,7 +82,11 @@ class CsvWriter implements WriterInterface
     public function write(array $data)
     {
         if ($this->position == 0 && $this->showHeaders) {
-            $this->addHeaders($data);
+            if (is_array($data[0])) {
+                $this->addHeaders($data[0]);
+            } else {
+                $this->addHeaders($data);
+            }
 
             ++$this->position;
         }
@@ -108,4 +112,13 @@ class CsvWriter implements WriterInterface
 
         fputcsv($this->file, $headers, $this->delimiter, $this->enclosure);
     }
+
+    /**
+     * @return string
+     */
+    public function getFilename()
+    {
+        return $this->filename;
+    }
+
 }
