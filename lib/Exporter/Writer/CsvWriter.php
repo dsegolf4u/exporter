@@ -82,11 +82,7 @@ class CsvWriter implements WriterInterface
     public function write(array $data)
     {
         if ($this->position == 0 && $this->showHeaders) {
-            if (is_array($data[0])) {
-                $this->addHeaders($data[0]);
-            } else {
-                $this->addHeaders($data);
-            }
+            $this->addHeaders($data);
 
             ++$this->position;
         }
